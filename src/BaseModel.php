@@ -536,7 +536,7 @@ abstract class  BaseModel
         Rule $rule,
         ...$params,
     ): void {
-        $message = $this->errorMessages()[$rule] ?? '';
+        $message = $this->errorMessages()[$rule->name] ?? '';
 
         foreach ($params as $param) {
             [$key, $value] = $param;
@@ -561,13 +561,13 @@ abstract class  BaseModel
     private function errorMessages(): array
     {
         return [
-            Rule::REQUIRED => 'This field is required',
-            Rule::EMAIL => 'You need to enter a valid email address',
-            Rule::MATCH => 'This field must be the same as {match}',
-            Rule::MAX_LENGTH => 'You can\'t enter more than {max} characters',
-            Rule::MIN_LENGTH => 'You need to enter atleast {min} or more characters',
-            Rule::UNIQUE => '{field} is already taken',
-            Rule::NUMBER => 'You need to enter a valid number',
+            Rule::REQUIRED->name => 'This field is required',
+            Rule::EMAIL->name => 'You need to enter a valid email address',
+            Rule::MATCH->name => 'This field must be the same as {match}',
+            Rule::MAX_LENGTH->name => 'You can\'t enter more than {max} characters',
+            Rule::MIN_LENGTH->name => 'You need to enter atleast {min} or more characters',
+            Rule::UNIQUE->name => '{field} is already taken',
+            Rule::NUMBER->name => 'You need to enter a valid number',
         ];
     }
 
