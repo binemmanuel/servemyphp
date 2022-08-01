@@ -634,4 +634,12 @@ abstract class  BaseModel
     {
         return (string) bin2hex(random_bytes(3));
     }
+
+    public static function isPhoneNumber(String $value)
+    {
+        return (preg_match('/^(234)(81|80|90|91|70|71)[0-9]{8}/s', $value) ||
+            preg_match('/(^(081|080|090|091|070|071))[0-9]{8}/s', $value) ||
+            preg_match('/(^(81|80|90|91|70|71))[0-9]{8}/s', $value)
+        );
+    }
 }
