@@ -1,0 +1,35 @@
+{
+	"name": "binemmanuel/servemyphp",
+	"description": "A light php framwork for building Server Side Applications (APIs)",
+	"type": "library",
+	"license": "MIT",
+	"autoload": {
+		"psr-4": {
+			"Binemmanuel\\ServeMyPhp\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Binemmanuel\\ServeMyPhp\\Test\\": "tests/"
+		}
+	},
+	"authors": [
+		{
+			"role": "authors",
+			"name": "Bin Emmanuel",
+			"email": "textme@binemmanuel.com",
+			"homepage": "https://binemmanuel.com"
+		}
+	],
+	"require": {
+		"php": "^8.1 ",
+		"ramsey/uuid": "^4.3.1"
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"optimize-autoloader": true,
+		"sort-packages": true,
+		"preferred-install": "dist"
+	}
+}
