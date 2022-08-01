@@ -1,4 +1,5 @@
 <?php
+
 namespace Binemmanuel\ServeMyPhp;
 
 use mysqli;
@@ -12,22 +13,14 @@ enum Rule
     case REQUIRED;
     case UNIQUE;
     case MATCH;
-    case RULE_MAX;
-    case MIN;
+    case MAX_LENGTH;
+    case MIN_LENGTH;
     case EMAIL;
     case NUMBER;
 }
 
 abstract class  BaseModel
 {
-    public const RULE_REQUIRED = 'required';
-    public const RULE_UNIQUE = 'unique';
-    public const RULE_MATCH = 'match';
-    public const RULE_MAX = 'max';
-    public const RULE_MIN = 'min';
-    public const RULE_EMAIL = 'email';
-    public const RULE_NUMBER = 'number';
-
     public static mysqli|PDO $db;
     protected array $errors;
     private static array $rules;
@@ -395,43 +388,43 @@ abstract class  BaseModel
                 }
 
                 switch ($ruleName) {
-                    case self::RULE_REQUIRED:
+                    case Rule::REQUIRED:
                         empty($value) ?
-                            $this->addError($attr, self::RULE_REQUIRED) : null;
+                            $this->addError($attr, Rule::REQUIRED) : null;
                         break;
 
-                    case self::RULE_EMAIL:
+                    case Rule::EMAIL:
                         (!filter_var($value, FILTER_VALIDATE_EMAIL)) ?
-                            $this->addError($attr, self::RULE_EMAIL) : null;
+                            $this->addError($attr, Rule::EMAIL) : null;
                         break;
 
-                    case self::RULE_MATCH:
+                    case Rule::MATCH:
                         ($value !== $this->{$rule[1]}) ?
-                            $this->addError($attr, self::RULE_MATCH, $rule) : null;
+                            $this->addError($attr, Rule::MATCH, $rule) : null;
                         break;
 
-                    case self::RULE_MAX:
+                    case Rule::MAX_LENGTH:
                         (strlen($value) > $rule[1]) ?
-                            $this->addError($attr, self::RULE_MAX, $rule) : null;
+                            $this->addError($attr, Rule::MAX_LENGTH, $rule) : null;
                         break;
 
-                    case self::RULE_MIN:
+                    case Rule::MIN_LENGTH:
                         (strlen($value) < $rule[1]) ?
-                            $this->addError($attr, self::RULE_MIN, $rule) : null;
+                            $this->addError($attr, Rule::MIN_LENGTH, $rule) : null;
                         break;
 
-                    case self::RULE_NUMBER:
+                    case Rule::NUMBER:
                         (!is_numeric($value)) ?
-                            $this->addError($attr, self::RULE_NUMBER) : null;
+                            $this->addError($attr, Rule::NUMBER) : null;
                         break;
 
-                    case self::RULE_UNIQUE:
+                    case Rule::UNIQUE:
                         $table = $rule['class']::$table;
 
                         $this->fieldExists($attr, $table) ?
                             $this->addError(
                                 $attr,
-                                self::RULE_UNIQUE,
+                                Rule::UNIQUE,
                                 ['field', $this->$attr]
                             ) : null;
 
@@ -540,13 +533,21 @@ abstract class  BaseModel
      */
     private function addError(
         String $attribute,
-        String $rule,
+        Rule $rule,
         ...$params,
     ): void {
         $message = $this->errorMessages()[$rule] ?? '';
 
         foreach ($params as $param) {
-            $message = str_replace("{{$param[0]}}", $param[1], $message);
+            [$key, $value] = $param;
+
+            if ($key === 'field') {
+                $key = strtolower($key);
+                $message = str_replace("{{$key}}", $value, $message);
+                return;
+            }
+
+            $message = str_replace("{{$key->name}}", $value, $message);
         }
 
         $this->errors[$attribute]['error'] = true;
@@ -560,13 +561,13 @@ abstract class  BaseModel
     private function errorMessages(): array
     {
         return [
-            self::RULE_REQUIRED => 'This field is required',
-            self::RULE_EMAIL => 'You need to enter a valid email address',
-            self::RULE_MATCH => 'This field must be the same as {match}',
-            self::RULE_MAX => 'You can\'t enter more than {max} characters',
-            self::RULE_MIN => 'You need to enter atleast {min} or more characters',
-            self::RULE_UNIQUE => '{field} is already taken',
-            self::RULE_NUMBER => 'You need to enter a valid number',
+            Rule::REQUIRED => 'This field is required',
+            Rule::EMAIL => 'You need to enter a valid email address',
+            Rule::MATCH => 'This field must be the same as {match}',
+            Rule::MAX_LENGTH => 'You can\'t enter more than {max} characters',
+            Rule::MIN_LENGTH => 'You need to enter atleast {min} or more characters',
+            Rule::UNIQUE => '{field} is already taken',
+            Rule::NUMBER => 'You need to enter a valid number',
         ];
     }
 
