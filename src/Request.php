@@ -1,4 +1,5 @@
 <?php
+
 namespace Binemmanuel\ServeMyPhp;
 
 use mysqli;
@@ -8,7 +9,10 @@ class Request
     public function __construct()
     {
         foreach ($this->body() as $key => $value) {
-            $this->{$key} = trim($value);
+            if (empty($value))
+                $this->{$key} = $value;
+            else
+                $this->{$key} = trim($value);
         }
 
         $file = $this->file();
@@ -16,6 +20,8 @@ class Request
         if (!empty($file)) {
             $this->file = $file;
         }
+
+        $this->header = $_SERVER;
     }
 
     public function isPost(): bool
