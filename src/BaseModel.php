@@ -19,7 +19,7 @@ enum Rule
     case NUMBER;
 }
 
-abstract class  BaseModel
+abstract class BaseModel
 {
     public static mysqli|PDO $db;
     protected array $errors;
@@ -300,6 +300,48 @@ abstract class  BaseModel
             : [];
     }
 
+    public function authenticate(array ...$data): array
+    {
+        $table = self::$table;
+        $props = $this->getProps();
+        [$idColumn, $passwordColumn] = $this::getColumns($data, returnArray: true);
+        [$id, $password] = $this::getParams($data);
+
+        echo  print_r($id, true);
+
+        return [];
+
+        $stmt = $this->prepare(
+            "SELECT
+               *
+            FROM
+                $table
+            WHERE
+                $idColumn = ?"
+        );
+
+        $stmt->bind_param('s', $id);
+        $stmt->execute();
+
+        [$paramKeys, $resultPrams] = Database::sqlResult($stmt);
+
+        $stmt->bind_result(...$resultPrams);
+
+        $data = [];
+
+        while ($stmt->fetch()) {
+            $i = 0;
+            foreach ($resultPrams as $result) {
+                $data[$paramKeys[$i]] = $result;
+                $i++;
+            }
+        }
+
+        return (password_verify($this->password, $data['password'] ?? ''))
+            ? $this->filterOut($data, ['password', 'OTPToken'])
+            : [];
+    }
+
     /**
      * Delete data
      */
@@ -543,11 +585,11 @@ abstract class  BaseModel
 
             if ($key === 'field') {
                 $key = strtolower($key);
-                $message = str_replace("{{$key}}", $value, $message);
-                return;
-            }
 
-            $message = str_replace("{{$key->name}}", $value, $message);
+                $message = str_replace("{{$key}}", $value, $message);
+            } else {
+                $message = str_replace("{{$key->name}}", $value, $message);
+            }
         }
 
         $this->errors[$attribute]['error'] = true;
@@ -584,14 +626,6 @@ abstract class  BaseModel
         }
 
         return $this;
-    }
-
-    public function sanitizeData()
-    {
-        /**
-         * @TODO return sanitized data
-         */
-        // return self::sanitize($value);
     }
 
     private static function sanitize(String|array $data): String|array
