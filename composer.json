@@ -1,6 +1,6 @@
 {
 	"name": "binemmanuel/servemyphp",
-	"description": "A light php library for building Server Side Applications (APIs)",
+	"description": "A light php library for building server-side applications (APIs)",
 	"type": "library",
 	"license": "MIT",
 	"autoload": {
