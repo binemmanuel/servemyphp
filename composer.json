@@ -1,6 +1,6 @@
 {
 	"name": "binemmanuel/servemyphp",
-	"description": "A light php framwork for building Server Side Applications (APIs)",
+	"description": "A light php framework for building Server Side Applications (APIs)",
 	"type": "library",
 	"license": "MIT",
 	"autoload": {
@@ -10,7 +10,8 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Binemmanuel\\ServeMyPhp\\Test\\": "tests/"
+			"Binemmanuel\\ServeMyPhp\\Test\\": "tests/",
+			"Binemmanuel\\ServeMyPhp\\Example\\Model\\": "example/src/models/"
 		}
 	},
 	"authors": [
@@ -24,6 +25,9 @@
 	"require": {
 		"php": "^8.1 ",
 		"ramsey/uuid": "^4.3.1"
+	},
+	"require-dev": {
+		"vlucas/phpdotenv": "^v5.4.1"
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
