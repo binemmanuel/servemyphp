@@ -15,10 +15,60 @@ $db = (new Database($_ENV))->mysqli();
 
 $app = new Router($db);
 
+$app->get('/api/v1/auth/get/user', function (Request $req, Response $res) use ($db) {
+    $user = (new User($db))->loadData($req->jsonBody());
+
+    $user->makeRules([
+        'userId' => [Rule::REQUIRED]
+    ]);
+
+    if ($user->hasError()) {
+        return $res::sendJson([
+            'error' => true,
+            'errors' => $user->errors(),
+        ], statusCode: 400);
+    }
+
+    $user = $user->find(['userId' => $user->userId]);
+
+    $res::sendJson($user);
+});
+
 $app->get('/api/v1/auth/get/users', function (Request $req, Response $res) use ($db) {
     $users = (new User($db))->fetchAll();
 
     $res::sendJson($users);
+});
+
+$app->post('/api/v1/auth/user/signin', function (Request $req, Response $res) use ($db) {
+    $user = (new User($db))->loadData($req->jsonBody());
+
+    $user->makeRules([
+        'username' => [Rule::REQUIRED],
+        'password' => [Rule::REQUIRED],
+    ]);
+
+    if ($user->hasError()) {
+        return $res::sendJson([
+            'error' => true,
+            'errors' => $user->errors(),
+        ], statusCode: 400);
+    }
+
+    $user = $user->verify();
+
+    if (empty($user)) {
+        return $res::sendJson([
+            'error' => true,
+            'message' => "Invalid username or password",
+        ], statusCode: 401);
+    }
+
+    $res::sendJson([
+        'error' => false,
+        'message' => 'Authenticated successfully',
+        'user' => $user,
+    ]);
 });
 
 $app->post('/api/v1/auth/user/signup', function (Request $req, Response $res) use ($db) {

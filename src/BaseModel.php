@@ -44,17 +44,34 @@ abstract class BaseModel
         self::$table = $this->__setTable();
     }
 
+    /**
+     * Database table name
+     * 
+     * @return string The database name
+     */
     abstract protected function __setTable(): String;
     abstract protected function rules(): array;
+
+    /**
+     * Create a set of rules
+     * 
+     * @param array $rules A list of rules 
+     */
     abstract public function makeRules(array $rules): void;
 
-    public function find(array $keyValues): array
+    /**
+     * Fetch data where a condition is met
+     * 
+     * @param array $condition The condition
+     * @return array The fetched data
+     */
+    public function find(array $condition): array
     {
-        $table = $this::$table;
-        $column = $this::getColumns($keyValues);
-        $params = $this::getParams($keyValues);
-        $paramTypes = $this::getParamTypes($keyValues);
-        $placeholders = $this::getPlaceholders($keyValues);
+        $table = self::$table;
+        $column = self::getColumns($condition);
+        $params = self::getParams($condition);
+        $paramTypes = self::getParamTypes($condition);
+        $placeholders = self::getPlaceholders($condition);
 
         $stmt = $this->prepare(
             "SELECT
@@ -86,13 +103,20 @@ abstract class BaseModel
         return $this::filterOut($data ?? [], ['password', 'OTPToken']) ?? [];
     }
 
-    public function findAll(array $keyValues, String $orderBy = 'id'): array
+    /**
+     * Fetch a list of data where a condition is met
+     * 
+     * @param array $condition The condition
+     * @param string $orderBy (optional) The column to order the data by
+     * @return array The fetched data
+     */
+    public function findAll(array $condition, String $orderBy = 'id'): array
     {
-        $table = $this::$table;
-        $column = $this::getColumns($keyValues);
-        $params = $this::getParams($keyValues);
-        $paramTypes = $this::getParamTypes($keyValues);
-        $placeholders = $this::getPlaceholders($keyValues);
+        $table = self::$table;
+        $column = self::getColumns($condition);
+        $params = self::getParams($condition);
+        $paramTypes = self::getParamTypes($condition);
+        $placeholders = self::getPlaceholders($condition);
 
         $stmt = $this->prepare(
             "SELECT
@@ -131,13 +155,19 @@ abstract class BaseModel
         return $this::filterOut($all ?? [], ['password', 'OTPToken']) ?? [];
     }
 
-    public function findLike(array $keyValues): array
+    /**
+     * Fetch a list of data where a condition is met
+     * 
+     * @param array $condition The condition
+     * @return array The fetched data
+     */
+    public function findLike(array $condition): array
     {
-        $table = $this::$table;
-        $column = $this::getColumns($keyValues);
-        $params = $this::getParamsLike($keyValues);
-        $paramTypes = $this::getParamTypes($keyValues);
-        $placeholders = $this::getPlaceholders($keyValues);
+        $table = self::$table;
+        $column = self::getColumns($condition);
+        $params = self::getParamsLike($condition);
+        $paramTypes = self::getParamTypes($condition);
+        $placeholders = self::getPlaceholders($condition);
 
         $stmt = $this->prepare(
             "SELECT
@@ -169,6 +199,12 @@ abstract class BaseModel
         return $this::filterOut($data ?? [], ['password', 'OTPToken']) ?? [];
     }
 
+    /**
+     * Fetch all data
+     * 
+     * @param string $orderBy (optional) The column to order the data by
+     * @return array The fetched data
+     */
     public function fetchAll(
         String $orderBy = 'id',
     ): array {
@@ -203,15 +239,21 @@ abstract class BaseModel
         return $data ?? [];
     }
 
+    /**
+     * Make changed to data
+     * 
+     * @param array $where a condition of row(s) to update
+     * @return array The saved data if saved successfully
+     */
     public function update(array $where): array
     {
         $table = self::$table;
         $props = $this->getProps();
         $columnsWithPlaceholders = $this->getColumns($props, withPlaceholders: true);
-        $condition = $this::getColumns($where, withPlaceholders: true);
-        $conditionArray = $this::getParams($where);
-        $params = $this::getParams(array_merge($props, $conditionArray));
-        $paramTypes = $this::getParamTypes(array_merge($props, $conditionArray));
+        $condition = self::getColumns($where, withPlaceholders: true);
+        $conditionArray = self::getParams($where);
+        $params = self::getParams(array_merge($props, $conditionArray));
+        $paramTypes = self::getParamTypes(array_merge($props, $conditionArray));
 
         $stmt = $this->prepare(
             "UPDATE
@@ -231,15 +273,17 @@ abstract class BaseModel
 
     /**
      * Save data in the database
+     * 
+     * @return array The saved data if saved successfully
      */
     public function save(): array
     {
-        $table = $this::$table;
+        $table = self::$table;
         $props = $this->getProps();
-        $columns = $this::getColumns($props);
-        $placeholders = $this::getPlaceholders($props);
-        $params = $this::getParams($props);
-        $paramTypes = $this::getParamTypes($props);
+        $columns = self::getColumns($props);
+        $placeholders = self::getPlaceholders($props);
+        $params = self::getParams($props);
+        $paramTypes = self::getParamTypes($props);
 
         $stmt = $this->prepare(
             "INSERT INTO 
@@ -262,12 +306,17 @@ abstract class BaseModel
         return $this->find(['id' => $userId]);
     }
 
+    /**
+     * Authenticate a user
+     * 
+     * @return array A user if authenticated successfully
+     */
     public function verify(): array
     {
         $table = self::$table;
         $props = $this->getProps();
-        [$idColumn, $passwordColumn] = $this::getColumns($props, returnArray: true);
-        [$id, $password] = $this::getParams($props);
+        [$idColumn, $passwordColumn] = self::getColumns($props, returnArray: true);
+        [$id, $password] = self::getParams($props);
 
         $stmt = $this->prepare(
             "SELECT
@@ -518,25 +567,42 @@ abstract class BaseModel
         bool $returnArray = false,
         bool $withPlaceholders = false,
     ): String|array {
-        foreach ($data as $key => $value) {
-            if ($withPlaceholders)
-                $keys[] = "$key = ?";
-            else
-                $keys[] = $key;
+        if (array_is_list($data)) {
+            foreach ($data as $key => $value) {
+                $keys[] = self::getColumns($value, withPlaceholders: $withPlaceholders);
+            }
+
+            return implode(' & ', $keys ?? []) ?? '';
+        } else {
+            foreach ($data as $key => $value) {
+                if ($withPlaceholders)
+                    $keys[] = "$key = ?";
+                else
+                    $keys[] = $key;
+            }
+
+            if ($returnArray)
+                return $keys ?? [];
+
+
+            return implode(', ', $keys ?? []) ?? '';
         }
-
-        if ($returnArray)
-            return $keys ?? [];
-
-        return implode(', ', $keys ?? []) ?? '';
     }
 
     protected static function getParams(array $data): array
     {
-        foreach ($data as $key => $value)
-            $values[] = $value;
+        if (array_is_list($data)) {
+            foreach ($data as $key => $value) {
+                $values[] = self::getParams($value)[0];
+            }
 
-        return $values ?? [];
+            return $values ?? [];
+        } else {
+            foreach ($data as $key => $value)
+                $values[] = $value;
+
+            return $values ?? [];
+        }
     }
 
     protected static function getParamsLike(array $data): array
@@ -603,7 +669,7 @@ abstract class BaseModel
     }
 
     /**
-     * A list of posible error messages
+     * A list of posable error messages
      */
     private function errorMessages(): array
     {
@@ -620,6 +686,8 @@ abstract class BaseModel
 
     /**
      * Loads the data to the model
+     * 
+     * @param array $data
      */
     public function loadData(array $data): self
     {
@@ -669,6 +737,9 @@ abstract class BaseModel
         return htmlspecialchars_decode(trim($data));
     }
 
+    /**
+     * Creates an ID
+     */
     public static function makeId(): String
     {
         return (string) bin2hex(random_bytes(3));
