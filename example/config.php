@@ -34,4 +34,4 @@ define('UPLOADS_DIR', __DIR__ . '/public_html/uploads/');
 require __DIR__ . '/../vendor/autoload.php';
 
 
-// \Dotenv\Dotenv::createImmutable(__DIR__)->load();
+\Dotenv\Dotenv::createImmutable(__DIR__)->load();

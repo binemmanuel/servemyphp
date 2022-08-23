@@ -1,6 +1,6 @@
 # Serve My PHP
 
-A light php framwork for building Server Side Applications (APIs)
+A light php library for building Server Side Applications (APIs)
 
 ## Installation
 

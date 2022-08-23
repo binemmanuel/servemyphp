@@ -1,4 +1,5 @@
 <?php
+
 namespace Binemmanuel\ServeMyPhp;
 
 use mysqli;
@@ -26,8 +27,10 @@ class Router
         String $method,
         String $route,
         callable|array $callback,
+        callable|array|null $next,
     ): self {
-        $this->routes[$method][$route] = $callback;
+        $this->routes[$method][$route][] = $callback;
+        $this->routes[$method][$route][] = $next;
 
         return $this;
     }
@@ -40,12 +43,15 @@ class Router
         array $methods,
         String $route,
         callable|array $callback,
+        callable|array $next,
+
     ) {
         foreach ($methods as $method) {
             $this->matchRequest(
                 $method,
                 $route,
-                $callback
+                $callback,
+                $next
             );
         }
         return $this;
@@ -57,11 +63,13 @@ class Router
     public function get(
         String $route,
         callable|array $callback,
+        callable|array $next = null,
     ): self {
         return $this->matchRequest(
             'get',
             $route,
-            $callback
+            $callback,
+            $next,
         );
     }
 
@@ -70,12 +78,14 @@ class Router
      */
     public function post(
         String $route,
-        callable|array $callback
+        callable|array $callback,
+        callable|array $next = null,
     ): self {
         return $this->matchRequest(
             'post',
             $route,
-            $callback
+            $callback,
+            $next
         );
     }
 
@@ -84,12 +94,14 @@ class Router
      */
     public function delete(
         String $route,
-        callable|array $callback
+        callable|array $callback,
+        callable|array $next = null,
     ): self {
         return $this->matchRequest(
             'delete',
             $route,
-            $callback
+            $callback,
+            $next
         );
     }
 
@@ -116,10 +128,10 @@ class Router
         $method = self::sanitize(strtolower($_SERVER['REQUEST_METHOD']));
 
         // Get the action that should be performed
-        $callback  = $this->routes[$method][$requestedRoute] ?? null;
+        [$callback, $next] = $this->routes[$method][$requestedRoute] ?? null;
 
         if (is_callable($callback)) {
-            call_user_func($callback, new Request, new Response);
+            call_user_func($callback, new Request, new Response, $next);
             return;
         }
 
@@ -133,12 +145,7 @@ class Router
             return;
         }
 
-        // Display 404 page
-        echo "Welcome API";
-        // View::sendJson([
-        //     'message' => 'unknown endpoint',
-        //     // 'routes' => $this->routes,
-        // ]);
+        Response::sendJson(['message' => 'Welcome API']);
     }
 
     private static function removeTrailingSlash(String $string): String

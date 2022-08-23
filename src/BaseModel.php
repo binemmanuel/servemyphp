@@ -606,8 +606,8 @@ abstract class BaseModel
             Rule::REQUIRED->name => 'This field is required',
             Rule::EMAIL->name => 'You need to enter a valid email address',
             Rule::MATCH->name => 'This field must be the same as {match}',
-            Rule::MAX_LENGTH->name => 'You can\'t enter more than {max} characters',
-            Rule::MIN_LENGTH->name => 'You need to enter atleast {min} or more characters',
+            Rule::MAX_LENGTH->name => "You can\'t enter more than {" . Rule::MAX_LENGTH->name . "} characters",
+            Rule::MIN_LENGTH->name => "You need to enter atleast {" . Rule::MIN_LENGTH->name . "} or more characters",
             Rule::UNIQUE->name => '{field} is already taken',
             Rule::NUMBER->name => 'You need to enter a valid number',
         ];
