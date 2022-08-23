@@ -343,13 +343,15 @@ abstract class BaseModel
     }
 
     /**
-     * Delete data
+     * Delete a row from the database
+     * 
+     * @param array $where condition that helps identify the row to delete
+     * @return bool true if deleted else false if unable to delete
      */
     public function delete(array $where): bool
     {
         $table = self::$table;
-        $column = $this::getColumns($where);
-        $placeholders = $this::getPlaceholders($where);
+        $condition = self::getColumns($where);
         $params = $this::getParams($where);
         $paramTypes = $this::getParamTypes($where);
 
@@ -357,14 +359,17 @@ abstract class BaseModel
             "DELETE FROM
                 $table
             WHERE
-                $column = $placeholders"
+                $condition"
         );
 
         $stmt->bind_param($paramTypes, ...$params);
-        $result = $stmt->execute();
+        $stmt->execute();
+
+        $result = $stmt->affected_rows;
+
         $stmt->close();
 
-        return $result;
+        return (bool) $result;
     }
 
     /**
