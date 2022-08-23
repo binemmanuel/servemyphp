@@ -19,21 +19,21 @@
 			"role": "authors",
 			"name": "Bin Emmanuel",
 			"email": "textme@binemmanuel.com",
-			"homepage": "https://binemmanuel.com"
+			"homepage": "https://binemmanuel.com/"
 		}
 	],
-	"require": {
-		"php": "^8.1 ",
-		"ramsey/uuid": "^4.3.1"
-	},
-	"require-dev": {
-		"vlucas/phpdotenv": "^v5.4.1"
-	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
 		"optimize-autoloader": true,
 		"sort-packages": true,
 		"preferred-install": "dist"
+	},
+	"require": {
+		"php": "^8.1 ",
+		"ramsey/uuid": "^4.3.1"
+	},
+	"require-dev": {
+		"vlucas/phpdotenv": "^v5.4.1"
 	}
 }
