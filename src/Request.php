@@ -12,7 +12,7 @@ class Request
             if (empty($value))
                 $this->{$key} = $value;
             else
-                $this->{$key} = trim($value);
+                $this->{$key} = is_array($value) ? $value : trim($value);
         }
 
         $file = $this->file();
