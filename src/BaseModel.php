@@ -40,6 +40,7 @@ abstract class BaseModel
 
         $this->errors = [];
 
+
         // Set the DB Table
         self::$table = $this->__setTable();
     }
@@ -234,32 +235,38 @@ abstract class BaseModel
      */
     public function save(): array
     {
-        $table = $this::$table;
-        $props = $this->getProps();
-        $columns = $this::getColumns($props);
-        $placeholders = $this::getPlaceholders($props);
-        $params = $this::getParams($props);
-        $paramTypes = $this::getParamTypes($props);
+        try {
+            $table = $this::$table;
+            $props = $this->getProps();
+            $columns = $this::getColumns($props);
+            $placeholders = $this::getPlaceholders($props);
+            $params = $this::getParams($props);
+            $paramTypes = $this::getParamTypes($props);
 
-        $stmt = $this->prepare(
-            "INSERT INTO 
+            $stmt = $this->prepare(
+                "INSERT INTO 
                 $table(
                     $columns
                 )
-            VALUES(
-                $placeholders
-            )"
-        );
+                VALUES(
+                    $placeholders
+                )"
+            );
 
-        $stmt->bind_param($paramTypes, ...$params);
+            $stmt->bind_param($paramTypes, ...$params);
 
-        $stmt->execute();
+            $stmt->execute();
 
-        $userId = $stmt->insert_id;
+            $userId = $stmt->insert_id;
 
-        $stmt->close();
+            $stmt->close();
 
-        return $this->find(['id' => $userId]);
+            return $this->find(['id' => $userId]);
+        } catch (\mysqli_sql_exception $e) {
+            throw new \mysqli_sql_exception($e->getMessage(), $e->getCode());
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), $e->getCode());
+        }
     }
 
     public function verify(): array
@@ -352,13 +359,6 @@ abstract class BaseModel
         $paramTypes = $this::getParamTypes($where);
 
         $condition = str_replace('&', '& WEHRE', $condition);
-
-        print_r("DELETE FROM
-                $table
-            WHERE
-                $condition");
-
-        return false;
 
         $stmt = $this->prepare(
             "DELETE FROM
