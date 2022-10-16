@@ -12,17 +12,21 @@ class Response
     public static function sendJson(
         array $data,
         int $statusCode = 200,
+        bool $allowCredentials = true,
+        string $allowOrigin = '*',
+        string $allowMethods = 'GET, POST, DELETE, PUT',
+        string $contentType = 'application/json; charset=UTF-8',
+        string $allowHeader = 'Authorization, Content-Type',
     ): void {
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json; charset=UTF-8');
-        header('Access-Control-Allow-Methods: GET, POST');
-        header('Access-Control-Allow-Credentials: true');
-        header('Access-Control-Allow-Headers: Authorization, Content-Type');
+        header("Access-Control-Allow-Origin: $allowOrigin");
+        header("Content-Type: $contentType");
+        header("Access-Control-Allow-Methods: $allowMethods");
+        header("Access-Control-Allow-Credentials: $allowCredentials");
+        header("Access-Control-Allow-Headers: $allowHeader");
 
         http_response_code($statusCode);
         echo json_encode($data);
     }
-
 
 
     /**
