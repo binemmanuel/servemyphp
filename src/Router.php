@@ -124,7 +124,7 @@ class Router
 
         $requestedRoute = self::removeTrailingSlash($requestedRoute);
 
-        // Sanitize and chage request method to lowercase 
+        // Sanitize and change request method to lowercase 
         $method = self::sanitize(strtolower($_SERVER['REQUEST_METHOD']));
 
         // Get the action that should be performed
@@ -136,11 +136,11 @@ class Router
         }
 
         if (is_iterable($callback)) {
-            [$controller, $method] = $callback;
+            [$controller, $method, $next] = $callback;
 
             // Instantiate the controller Object and
             // call the required method
-            (new $controller(static::$database))->$method();
+            (new $controller(static::$database))->$method(new Request, new Response);
 
             return;
         }

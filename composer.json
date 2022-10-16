@@ -11,7 +11,8 @@
 	"autoload-dev": {
 		"psr-4": {
 			"Binemmanuel\\ServeMyPhp\\Test\\": "tests/",
-			"Binemmanuel\\ServeMyPhp\\Example\\Model\\": "example/src/models/"
+			"Binemmanuel\\ServeMyPhp\\Example\\Model\\": "example/src/models/",
+			"Binemmanuel\\ServeMyPhp\\Example\\Controller\\": "example/src/controllers/"
 		}
 	},
 	"authors": [
