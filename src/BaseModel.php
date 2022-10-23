@@ -163,11 +163,52 @@ abstract class BaseModel
                 $data[$paramKeys[$i]] = $value;
                 $i++;
             }
+            $data = $this::filterOut($data, ['password', 'OTPToken']);
         }
-
         $stmt->close();
 
-        return $this::filterOut($data ?? [], ['password', 'OTPToken']) ?? [];
+        return $data ?? [];
+    }
+
+    public function findLikes(array $keyValues): array
+    {
+        $table = $this::$table;
+        $column = $this::getColumns($keyValues);
+        $params = $this::getParamsLike($keyValues);
+        $paramTypes = $this::getParamTypes($keyValues);
+        $placeholders = $this::getPlaceholders($keyValues);
+
+        $stmt = $this->prepare(
+            "SELECT
+                *
+            FROM
+                $table
+            WHERE
+                $column LIKE $placeholders"
+        );
+
+        $stmt->bind_param($paramTypes, ...$params);
+
+        $stmt->execute();
+
+        [$paramKeys, $resultPrams] = Database::sqlResult($stmt);
+
+        $stmt->bind_result(...$resultPrams);
+
+        $all = [];
+
+        while ($stmt->fetch()) {
+            $i = 0;
+            foreach ($resultPrams as $value) {
+                $data[$paramKeys[$i]] = $value;
+                $i++;
+            }
+
+            array_push($all, $this::filterOut($data, ['password', 'OTPToken']));
+        }
+        $stmt->close();
+
+        return $all;
     }
 
     public function fetchAll(
@@ -204,6 +245,12 @@ abstract class BaseModel
         return $data ?? [];
     }
 
+    /**
+     * Update a piece of data
+     * 
+     * @param array $where a condition that determines where to update the data
+     * @return array A an array of the updated data
+     */
     public function update(array $where): array
     {
         $table = self::$table;
@@ -405,10 +452,7 @@ abstract class BaseModel
     public static function filterOut(array $data, array $filters): array
     {
         foreach ($data as $key => $value) {
-            foreach ($filters as $filter) {
-                if ($filter === $key)
-                    unset($data[$key]);
-            }
+            if (in_array($key, $filters)) unset($data[$key]);
         }
 
         return $data ?? [];
@@ -625,7 +669,7 @@ abstract class BaseModel
     }
 
     /**
-     * A list of posible error messages
+     * A list of possible error messages
      */
     private function errorMessages(): array
     {
@@ -634,7 +678,7 @@ abstract class BaseModel
             Rule::EMAIL->name => 'You need to enter a valid email address',
             Rule::MATCH->name => "This field must be the same as {" . Rule::MATCH->name . "}",
             Rule::MAX_LENGTH->name => "You can\'t enter more than {" . Rule::MAX_LENGTH->name . "} characters",
-            Rule::MIN_LENGTH->name => "You need to enter atleast {" . Rule::MIN_LENGTH->name . "} or more characters",
+            Rule::MIN_LENGTH->name => "You need to enter at least {" . Rule::MIN_LENGTH->name . "} or more characters",
             Rule::UNIQUE->name => "{field} is already taken",
             Rule::NUMBER->name => 'You need to enter a valid number',
         ];
