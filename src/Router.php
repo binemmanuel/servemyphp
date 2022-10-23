@@ -136,11 +136,15 @@ class Router
         }
 
         if (is_iterable($callback)) {
-            [$controller, $method, $next] = $callback;
+            [$controller, $method] = $callback;
 
             // Instantiate the controller Object and
             // call the required method
-            (new $controller(static::$database))->$method(new Request, new Response);
+            (new $controller(static::$database))->$method(
+                new Request,
+                new Response,
+                $next
+            );
 
             return;
         }

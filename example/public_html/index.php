@@ -10,13 +10,14 @@ use Binemmanuel\ServeMyPhp\{
 
 use Binemmanuel\ServeMyPhp\Example\Model\User;
 use Binemmanuel\ServeMyPhp\Example\Controller\Home;
+use Binemmanuel\ServeMyPhp\Example\Controller\Auth;
 
 require __DIR__ . '/../config.php';
 
 $db = (new Database($_ENV))->mysqli();
 
 
-$auth = function (Request $req, Response $res, $next) use ($db) {
+/* $auth = function (Request $req, Response $res, $next) use ($db) {
     try {
         [$controller, $method] = $next;
 
@@ -25,10 +26,10 @@ $auth = function (Request $req, Response $res, $next) use ($db) {
         throw new Exception($e->getMessage(), $e->getCode());
     }
 };
-
+ */
 $app = new Router($db);
 
-$app->get('/', $auth, [Home::class, 'dashboard']);
+$app->get('/', [Auth::class, 'isAdmin'], [Home::class, 'dashboard']);
 
 $app->get('/api/v1/auth/get/user', function (Request $req, Response $res) use ($db) {
     $user = (new User($db))->loadData($req->jsonBody());
