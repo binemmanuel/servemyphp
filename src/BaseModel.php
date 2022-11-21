@@ -21,20 +21,20 @@ enum Rule
 
 abstract class BaseModel
 {
-    public static mysqli|PDO $db;
+    public static mysqli|PDO $database;
     protected array $errors;
     private static array $rules;
     protected static String $table;
 
     public function __construct(
-        mysqli|PDO $db,
+        mysqli|PDO $database,
         public String $id = '',
-        public String $date = '',
+        public String $_date = '',
     ) {
-        self::$db = $db;
+        self::$database = $database;
 
         // Set ID
-        $this->id = empty($id)
+        $this->_id = empty($id)
             ? (new \Ramsey\Uuid\UuidFactory)->uuid4()
             : self::sanitize($id);
 
@@ -405,7 +405,7 @@ abstract class BaseModel
         $params = $this::getParams($where);
         $paramTypes = $this::getParamTypes($where);
 
-        $condition = str_replace('&', '& WEHRE', $condition);
+        $condition = str_replace('&', '& WHERE', $condition);
 
         $stmt = $this->prepare(
             "DELETE FROM
@@ -431,7 +431,7 @@ abstract class BaseModel
         String $field,
         String $table,
     ): bool {
-        $stmt = self::$db->prepare(
+        $stmt = self::$database->prepare(
             "SELECT
                 {$field}
             FROM
@@ -463,7 +463,7 @@ abstract class BaseModel
      */
     public function prepare(String $stmt): PDOStatement|mysqli_stmt|false
     {
-        return self::$db->prepare($stmt);
+        return self::$database->prepare($stmt);
     }
 
     /**
