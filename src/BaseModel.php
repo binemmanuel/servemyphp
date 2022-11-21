@@ -28,15 +28,15 @@ abstract class BaseModel
 
     public function __construct(
         mysqli|PDO $database,
-        public String $id = '',
+        public String $_id = '',
         public String $_date = '',
     ) {
         self::$database = $database;
 
         // Set ID
-        $this->_id = empty($id)
+        $this->_id = empty($_id)
             ? (new \Ramsey\Uuid\UuidFactory)->uuid4()
-            : self::sanitize($id);
+            : self::sanitize($_id);
 
         $this->errors = [];
 
