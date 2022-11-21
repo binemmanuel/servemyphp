@@ -12,7 +12,6 @@ class Database
     {
     }
 
-
     public function mysqli(): mysqli|null
     {
         try {
