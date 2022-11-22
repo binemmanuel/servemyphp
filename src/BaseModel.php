@@ -253,6 +253,9 @@ abstract class BaseModel
      */
     public function update(array $where): array
     {
+        unset($this->_id);
+        unset($this->_date);
+
         $table = self::$table;
         $props = $this->getProps();
         $columnsWithPlaceholders = $this->getColumns($props, withPlaceholders: true);
@@ -282,6 +285,9 @@ abstract class BaseModel
      */
     public function save(): array
     {
+        unset($this->_id);
+        unset($this->_date);
+
         try {
             $table = $this::$table;
             $props = $this->getProps();
