@@ -71,5 +71,5 @@ $app->run();
 
 ### Start Dev Server
 ```bash
-php -S localhost:8080
+php -S 0.0.0.0:8080 -t public_html
 ```
