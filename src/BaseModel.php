@@ -324,6 +324,9 @@ abstract class BaseModel
 
     public function verify(): array
     {
+        unset($this->_id);
+        unset($this->_date);
+
         $table = self::$table;
         $props = $this->getProps();
         [$idColumn, $passwordColumn] = $this::getColumns($props, returnArray: true);
